@@ -12,6 +12,8 @@ struct MapView: View {
 
     static let customShortDetent: PresentationDetent = .height(100)
     
+    @StateObject private var viewModel = MapViewModel()
+    
     //TODO: hardcoded, this should be obteined from location services
     @State private var position: MapCameraPosition = .region(
         MKCoordinateRegion(
@@ -37,6 +39,11 @@ struct MapView: View {
                 .presentationDragIndicator(.visible)
                 .interactiveDismissDisabled()
                 .presentationBackgroundInteraction(.enabled(upThrough: detent))
+        }
+        .onAppear {
+            Task {
+                await viewModel.fetchDataIfNeeded()
+            }
         }
     }
 }

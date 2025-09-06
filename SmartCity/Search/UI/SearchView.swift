@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SearchView: View {
     
+    @StateObject private var viewModel = SearchCityViewModel()
     @State private var searchText = ""
     @FocusState private var isSearchFocused: Bool
     @Environment(\.dismiss) private var dismiss
@@ -24,6 +25,9 @@ struct SearchView: View {
                 TextField("Buscar ciudad...", text: $searchText)
                     .textFieldStyle(PlainTextFieldStyle())
                     .focused($isSearchFocused)
+                    .onChange(of: searchText) { oldValue, newValue in
+                        viewModel.searchCities(query: newValue)
+                    }
                     .onChange(of: isSearchFocused) { oldValue, newValue in
                         if newValue {
                             withAnimation {
@@ -51,14 +55,29 @@ struct SearchView: View {
             .background(Color(.systemGray6))
             .cornerRadius(10)
             
-            if !searchText.isEmpty {
-                List {
-                    Text("Resultado de búsqueda para '\(searchText)'")
-                    Text("Ciudad ejemplo 1")
-                    Text("Ciudad ejemplo 2")
-                    Text("Ciudad ejemplo 3")
+            if viewModel.isSearching {
+                //TODO: localization
+                ProgressView("Buscando...")
+                    .padding()
+                Spacer()
+            } else if !viewModel.searchResults.isEmpty {
+                List(Array(viewModel.searchResults.enumerated()), id: \.offset) { index, city in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(city.name)
+                            .font(.headline)
+                        Text(city.country)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
                 }
                 .listStyle(PlainListStyle())
+            } else if !searchText.isEmpty {
+                //TODO: localization
+                Text("No se encontraron ciudades")
+                    .foregroundColor(.secondary)
+                    .padding()
+                Spacer()
             } else {
                 Spacer()
             }
