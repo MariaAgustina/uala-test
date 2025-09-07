@@ -9,7 +9,7 @@ import Foundation
 
 typealias CitiesResponse = [CityResponse]
 
-struct CityResponse: Codable {
+struct CityResponse: Codable, Identifiable {
     let country: String
     let name: String
     let id: Int

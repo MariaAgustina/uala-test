@@ -23,6 +23,8 @@ struct MapView: View {
     )
     
     @State private var detent: PresentationDetent = MapView.customShortDetent
+    @State private var selectedCity: CityResponse?
+    @State private var showingSearch = true
     
     var body: some View {
         Map(position: $position) {
@@ -33,21 +35,37 @@ struct MapView: View {
             MapUserLocationButton()
             MapScaleView()
         }
-        .sheet(isPresented: .constant(true)) {
+        .sheet(isPresented: $showingSearch) {
             SearchView(
                 detent: $detent, 
                 collapsedDetent: MapView.customShortDetent
-            ) { selectedCity in
-                navigateToCity(selectedCity)
+            ) { city in
+                navigateToCity(city)
+                selectedCity = city
+                showingSearch = false
             }
                 .presentationDetents([MapView.customShortDetent, .large], selection: $detent)
                 .presentationDragIndicator(.visible)
                 .interactiveDismissDisabled()
                 .presentationBackgroundInteraction(.enabled(upThrough: detent))
         }
+        .sheet(item: $selectedCity, onDismiss: {
+            showingSearch = true
+        }) { city in
+            CityDetailView(city: city) {
+                selectedCity = nil
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
+        }
         .onAppear {
             Task {
                 await viewModel.fetchDataIfNeeded()
+            }
+        }
+        .onChange(of: showingSearch) { oldValue, newValue in
+            if newValue {
+                detent = MapView.customShortDetent
             }
         }
     }
