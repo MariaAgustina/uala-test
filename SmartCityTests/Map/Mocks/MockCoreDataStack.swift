@@ -9,7 +9,7 @@ final class MockCoreDataStack: CoreDataStackProtocol {
     var mockError: Error?
     var shouldThrowError = false
     
-    private lazy var mockPersistentContainer: NSPersistentContainer = {
+    private lazy var mockContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "SmartCityData")
         let description = NSPersistentStoreDescription()
         description.type = NSInMemoryStoreType
@@ -24,19 +24,22 @@ final class MockCoreDataStack: CoreDataStackProtocol {
         return container
     }()
     
-    var persistentContainer: NSPersistentContainer {
-        get throws {
-            return mockPersistentContainer
-        }
+    var container: NSPersistentContainer {
+        return mockContainer
     }
     
-    var context: NSManagedObjectContext {
-        get throws {
-            return mockPersistentContainer.viewContext
-        }
+    var viewContext: NSManagedObjectContext {
+        return mockContainer.viewContext
     }
     
-    func saveContext() throws {
+    func newBackgroundContext() -> NSManagedObjectContext {
+        return mockContainer.newBackgroundContext()
+    }
+    
+    func load() async throws {
+    }
+    
+    func saveIfNeeded() throws {
         if shouldThrowError, let mockError = mockError {
             throw mockError
         }

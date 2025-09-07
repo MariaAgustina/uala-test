@@ -60,7 +60,12 @@ struct MapView: View {
         }
         .onAppear {
             Task {
-                await viewModel.fetchDataIfNeeded()
+                do {
+                    try await CoreDataStack.shared.load()
+                    await viewModel.fetchDataIfNeeded()
+                } catch {
+                    print("❌ Failed to load CoreData: \(error)")
+                }
             }
         }
         .onChange(of: showingSearch) { oldValue, newValue in

@@ -18,27 +18,25 @@ final class DownloadCitiesRepository: DownloadCitiesRepositoryProtocol {
     
     init(
         dataSource: CitiesDataSourceProtocol = CitiesDataSource(),
-        coreDataStack: CoreDataStackProtocol = CoreDataStack()
+        coreDataStack: CoreDataStackProtocol = CoreDataStack.shared
     ) {
         self.dataSource = dataSource
         self.coreDataStack = coreDataStack
     }
     
     func fetchCities() async throws -> CitiesResponse {
-        return try await Task.detached(priority: .background) {
-            print("🌍 Starting cities download...")
-            let cities = try await self.dataSource.fetchCities()
-            print("📱 Downloaded \(cities.count) cities from API")
-            
-            do {
-                try await self.coreDataStack.saveCities(cities)
-                print("💾 Cities saved to CoreData successfully")
-            } catch {
-                print("❌ Failed to save cities to CoreData: \(error)")
-                throw error
-            }
-            
-            return cities //TODO: not necessary return
-        }.value
+        print("🌍 Starting cities download...")
+        let cities = try await dataSource.fetchCities()
+        print("📱 Downloaded \(cities.count) cities from API")
+        
+        do {
+            try await coreDataStack.saveCities(cities)
+            print("💾 Cities saved to CoreData successfully")
+        } catch {
+            print("❌ Failed to save cities to CoreData: \(error)")
+            throw error
+        }
+        
+        return cities
     }
 }

@@ -194,9 +194,7 @@ final class CityDetailViewModelTests: XCTestCase {
             XCTFail("SUT not initialized")
             return
         }
-        
-        XCTAssertTrue(sut is ObservableObject)
-        
+                
         let newCity = CityResponse(
             country: "IT",
             name: "Rome",

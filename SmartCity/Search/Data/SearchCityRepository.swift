@@ -15,7 +15,7 @@ final class SearchCityRepository: SearchCityRepositoryProtocol {
     
     private let dataSource: SearchCityDataSourceProtocol
     
-    init(dataSource: SearchCityDataSourceProtocol = SearchCityDataSource(coreDataStack: CoreDataStack())) {
+    init(dataSource: SearchCityDataSourceProtocol = SearchCityDataSource(coreDataStack: CoreDataStack.shared)) {
         self.dataSource = dataSource
     }
     
