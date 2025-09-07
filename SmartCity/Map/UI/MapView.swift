@@ -12,7 +12,8 @@ struct MapView: View {
 
     static let customShortDetent: PresentationDetent = .height(100)
     
-    @StateObject private var viewModel = MapViewModel()
+    @StateObject private var viewModel: MapViewModel
+    @StateObject private var searchViewModel: SearchCityViewModel
     
     //TODO: hardcoded, this should be obteined from location services
     @State private var position: MapCameraPosition = .region(
@@ -26,6 +27,18 @@ struct MapView: View {
     @State private var selectedCity: CityResponse?
     @State private var showingSearch = true
     
+    init(coreDataStack: CoreDataStackProtocol) {
+        
+        let downloadRepo = DownloadCitiesRepository(coreDataStack: coreDataStack)
+        let downloadUseCase = DownloadCitiesUseCase(repository: downloadRepo)
+        self._viewModel = StateObject(wrappedValue: MapViewModel(downloadCitiesUseCase: downloadUseCase))
+        
+        let searchDataSource = SearchCityDataSource(coreDataStack: coreDataStack)
+        let searchRepo = SearchCityRepository(dataSource: searchDataSource)
+        let searchUseCase = SearchCityUseCase(repository: searchRepo)
+        self._searchViewModel = StateObject(wrappedValue: SearchCityViewModel(searchCityUseCase: searchUseCase))
+    }
+    
     var body: some View {
         Map(position: $position) {
             UserAnnotation()
@@ -37,6 +50,7 @@ struct MapView: View {
         }
         .sheet(isPresented: $showingSearch) {
             SearchView(
+                viewModel: searchViewModel,
                 detent: $detent, 
                 collapsedDetent: MapView.customShortDetent
             ) { city in
@@ -60,12 +74,7 @@ struct MapView: View {
         }
         .onAppear {
             Task {
-                do {
-                    try await CoreDataStack.shared.load()
-                    await viewModel.fetchDataIfNeeded()
-                } catch {
-                    print("❌ Failed to load CoreData: \(error)")
-                }
+                await viewModel.fetchDataIfNeeded()
             }
         }
         .onChange(of: showingSearch) { oldValue, newValue in
@@ -91,5 +100,5 @@ struct MapView: View {
 }
 
 #Preview {
-    MapView()
+    MapView(coreDataStack: CoreDataStack())
 }

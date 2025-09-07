@@ -17,7 +17,7 @@ final class SearchCityViewModel: ObservableObject {
     private let searchCityUseCase: SearchCityUseCaseProtocol
     private var cancellables = Set<AnyCancellable>()
     
-    init(searchCityUseCase: SearchCityUseCaseProtocol = SearchCityUseCase()) {
+    init(searchCityUseCase: SearchCityUseCaseProtocol) {
         self.searchCityUseCase = searchCityUseCase
         setupSearchPipeline()
     }

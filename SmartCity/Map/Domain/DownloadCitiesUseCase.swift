@@ -16,7 +16,7 @@ final class DownloadCitiesUseCase: DownloadCitiesUseCaseProtocol {
     private let repository: DownloadCitiesRepositoryProtocol
     
     init(
-        repository: DownloadCitiesRepositoryProtocol = DownloadCitiesRepository()
+        repository: DownloadCitiesRepositoryProtocol
     ) {
         self.repository = repository
     }

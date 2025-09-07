@@ -9,9 +9,20 @@ import SwiftUI
 
 @main
 struct SmartCityApp: App {
+    
+    let coreDataStack: CoreDataStack = CoreDataStack()
+    
     var body: some Scene {
         WindowGroup {
-            MapView()
+            MapView(coreDataStack: coreDataStack)
+                .task {
+                    do {
+                        try await coreDataStack.load()
+                        print("✅ CoreData loaded successfully at app launch")
+                    } catch {
+                        print("❌ Failed to load CoreData at app launch: \(error)")
+                    }
+                }
         }
     }
 }

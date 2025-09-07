@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SearchView: View {
     
-    @StateObject private var viewModel = SearchCityViewModel()
+    @ObservedObject var viewModel: SearchCityViewModel
     @FocusState private var isSearchFocused: Bool
     
     @Binding var detent: PresentationDetent
@@ -17,10 +17,12 @@ struct SearchView: View {
     let onCitySelected: (CityResponse) -> Void
     
     init(
+        viewModel: SearchCityViewModel,
         detent: Binding<PresentationDetent>,
         collapsedDetent: PresentationDetent = .height(100),
         onCitySelected: @escaping (CityResponse) -> Void
     ) {
+        self.viewModel = viewModel
         self._detent = detent
         self.collapsedDetent = collapsedDetent
         self.onCitySelected = onCitySelected
@@ -108,7 +110,16 @@ struct SearchView: View {
 }
 
 #Preview {
-    SearchView(detent: .constant(.height(200))) { city in
+    let coreDataStack = CoreDataStack()
+    let searchDataSource = SearchCityDataSource(coreDataStack: coreDataStack)
+    let searchRepo = SearchCityRepository(dataSource: searchDataSource)
+    let searchUseCase = SearchCityUseCase(repository: searchRepo)
+    let searchViewModel = SearchCityViewModel(searchCityUseCase: searchUseCase)
+    
+    return SearchView(
+        viewModel: searchViewModel,
+        detent: .constant(.height(200))
+    ) { city in
         print("Selected: \(city.name)")
     }
 }

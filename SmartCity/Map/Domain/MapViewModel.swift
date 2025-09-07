@@ -12,7 +12,7 @@ final class MapViewModel: ObservableObject {
     private let downloadCitiesUseCase: DownloadCitiesUseCaseProtocol
     
     init(
-        downloadCitiesUseCase: DownloadCitiesUseCaseProtocol = DownloadCitiesUseCase()
+        downloadCitiesUseCase: DownloadCitiesUseCaseProtocol
     ) {
         self.downloadCitiesUseCase = downloadCitiesUseCase
     }

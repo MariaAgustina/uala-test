@@ -23,34 +23,23 @@ protocol CoreDataStackProtocol {
 }
 
 final class CoreDataStack: CoreDataStackProtocol {
-    static let shared = CoreDataStack()
-    
     let container: NSPersistentContainer
     var viewContext: NSManagedObjectContext { container.viewContext }
-    private var isLoaded = false
 
     init(modelName: String = "SmartCityData") {
-        self.container = NSPersistentContainer(name: modelName)
+        container = NSPersistentContainer(name: modelName)
         for d in container.persistentStoreDescriptions {
             d.shouldMigrateStoreAutomatically = true
             d.shouldInferMappingModelAutomatically = true
         }
         container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
         container.viewContext.automaticallyMergesChangesFromParent = true
-        container.viewContext.name = "viewContext"
     }
 
     func load() async throws {
-        guard !isLoaded else { return }
-        
         try await withCheckedThrowingContinuation { (c: CheckedContinuation<Void, Error>) in
             container.loadPersistentStores { _, error in
-                if let e = error { 
-                    c.resume(throwing: CoreDataError.persistentStoreLoadingFailed(e)) 
-                } else { 
-                    self.isLoaded = true
-                    c.resume(returning: ()) 
-                }
+                if let e = error { c.resume(throwing: e) } else { c.resume(returning: ()) }
             }
         }
     }
@@ -58,18 +47,13 @@ final class CoreDataStack: CoreDataStackProtocol {
     func newBackgroundContext() -> NSManagedObjectContext {
         let ctx = container.newBackgroundContext()
         ctx.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-        ctx.name = "bgContext"
         return ctx
     }
 
     func saveIfNeeded() throws {
-        let ctx = viewContext
-        if ctx.hasChanges {
-            do { try ctx.save() }
-            catch { throw CoreDataError.saveFailed(error) }
-        }
+        if viewContext.hasChanges { try viewContext.save() }
     }
-
+    
     func saveCities(_ cities: CitiesResponse) async throws {
         let ctx = newBackgroundContext()
         try await ctx.performAsync { ctx in
@@ -97,10 +81,10 @@ final class CoreDataStack: CoreDataStackProtocol {
 
 extension NSManagedObjectContext {
     func performAsync<T>(_ work: @escaping (NSManagedObjectContext) throws -> T) async throws -> T {
-        try await withCheckedThrowingContinuation { (c: CheckedContinuation<T, Error>) in
+        try await withCheckedThrowingContinuation { (cont: CheckedContinuation<T, Error>) in
             self.perform {
-                do { c.resume(returning: try work(self)) }
-                catch { c.resume(throwing: error) }
+                do { cont.resume(returning: try work(self)) }
+                catch { cont.resume(throwing: error) }
             }
         }
     }

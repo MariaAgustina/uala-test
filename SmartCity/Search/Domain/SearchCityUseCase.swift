@@ -15,7 +15,7 @@ final class SearchCityUseCase: SearchCityUseCaseProtocol {
     
     private let repository: SearchCityRepositoryProtocol
     
-    init(repository: SearchCityRepositoryProtocol = SearchCityRepository()) {
+    init(repository: SearchCityRepositoryProtocol) {
         self.repository = repository
     }
     
