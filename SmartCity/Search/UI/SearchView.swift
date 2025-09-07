@@ -10,14 +10,15 @@ import SwiftUI
 struct SearchView: View {
     
     @StateObject private var viewModel = SearchCityViewModel()
-    @State private var searchText = ""
     @FocusState private var isSearchFocused: Bool
-    @Environment(\.dismiss) private var dismiss
-    @Binding var detent: PresentationDetent
     
+    @Binding var detent: PresentationDetent
     private let collapsedDetent: PresentationDetent
     
-    init(detent: Binding<PresentationDetent>, collapsedDetent: PresentationDetent = .height(100)) {
+    init(
+        detent: Binding<PresentationDetent>,
+        collapsedDetent: PresentationDetent = .height(100)
+    ) {
         self._detent = detent
         self.collapsedDetent = collapsedDetent
     }
@@ -29,12 +30,9 @@ struct SearchView: View {
                     .foregroundColor(.gray)
                 
                 //TODO: localization
-                TextField("Buscar ciudad...", text: $searchText)
+                TextField("Buscar ciudad...", text: $viewModel.searchQuery)
                     .textFieldStyle(PlainTextFieldStyle())
                     .focused($isSearchFocused)
-                    .onChange(of: searchText) { oldValue, newValue in
-                        viewModel.searchCities(query: newValue)
-                    }
                     .onChange(of: isSearchFocused) { oldValue, newValue in
                         if newValue {
                             withAnimation {
@@ -43,14 +41,14 @@ struct SearchView: View {
                         } else {
                             withAnimation {
                                 detent = collapsedDetent
-                                searchText = ""
+                                viewModel.searchQuery = ""
                             }
                         }
                     }
                 
-                if !searchText.isEmpty {
+                if !viewModel.searchQuery.isEmpty {
                     Button(action: {
-                        searchText = ""
+                        viewModel.searchQuery = ""
                         isSearchFocused = false
                     }) {
                         Image(systemName: "xmark.circle.fill")
@@ -79,7 +77,7 @@ struct SearchView: View {
                     .padding(.vertical, 4)
                 }
                 .listStyle(PlainListStyle())
-            } else if !searchText.isEmpty {
+            } else if !viewModel.searchQuery.isEmpty {
                 //TODO: localization
                 Text("No se encontraron ciudades")
                     .foregroundColor(.secondary)

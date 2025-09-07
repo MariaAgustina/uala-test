@@ -6,23 +6,33 @@
 //
 
 import Foundation
+import Combine
 
 final class SearchCityViewModel: ObservableObject {
     
     @Published var searchResults: [CityResponse] = []
     @Published var isSearching = false
+    @Published var searchQuery = ""
     
     private let searchCityUseCase: SearchCityUseCaseProtocol
-    private var searchTask: Task<Void, Never>?
+    private var cancellables = Set<AnyCancellable>()
     
     init(searchCityUseCase: SearchCityUseCaseProtocol = SearchCityUseCase()) {
         self.searchCityUseCase = searchCityUseCase
+        setupSearchPipeline()
     }
     
-    func searchCities(query: String) {
-        // Cancelar búsqueda anterior
-        searchTask?.cancel()
-        
+    private func setupSearchPipeline() {
+        $searchQuery
+            .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
+            .removeDuplicates()
+            .sink { [weak self] query in
+                self?.performSearch(query: query)
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func performSearch(query: String) {
         guard !query.isEmpty else {
             searchResults = []
             isSearching = false
@@ -31,32 +41,14 @@ final class SearchCityViewModel: ObservableObject {
         
         isSearching = true
         
-        searchTask = Task { @MainActor in
-            
-            //TODO: review this!!!
-            // Debounce de 500ms para evitar crashes de Metal
-            try? await Task.sleep(nanoseconds: 500_000_000)
-            
-            guard !Task.isCancelled else { 
-                isSearching = false
-                return 
-            }
-            
+        Task { @MainActor in
             do {
                 let results = try await searchCityUseCase.execute(query: query)
-                
-                guard !Task.isCancelled else { 
-                    isSearching = false
-                    return 
-                }
-                
                 searchResults = results
                 isSearching = false
                 print("🔍 Found \(results.count) cities for query: '\(query)'")
                 print("📝 City names: \(results.map { $0.name }.joined(separator: ", "))")
             } catch {
-                guard !Task.isCancelled else { return }
-                
                 searchResults = []
                 isSearching = false
                 print("❌ Error searching cities: \(error)")
