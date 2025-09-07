@@ -13,7 +13,14 @@ enum CoreDataError: Error {
     case saveFailed(Error)
 }
 
-final class CoreDataStack {
+protocol CoreDataStackProtocol {
+    var persistentContainer: NSPersistentContainer { get throws }
+    var context: NSManagedObjectContext { get throws }
+    func saveContext() throws
+    func saveCities(_ cities: CitiesResponse) async throws
+}
+
+final class CoreDataStack: CoreDataStackProtocol {
     
     private var _persistentContainer: NSPersistentContainer?
     private var loadError: Error?

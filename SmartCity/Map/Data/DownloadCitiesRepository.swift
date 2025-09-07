@@ -14,11 +14,11 @@ protocol DownloadCitiesRepositoryProtocol {
 final class DownloadCitiesRepository: DownloadCitiesRepositoryProtocol {
     
     private let dataSource: CitiesDataSourceProtocol
-    private let coreDataStack: CoreDataStack
+    private let coreDataStack: CoreDataStackProtocol
     
     init(
         dataSource: CitiesDataSourceProtocol = CitiesDataSource(),
-        coreDataStack: CoreDataStack = CoreDataStack()
+        coreDataStack: CoreDataStackProtocol = CoreDataStack()
     ) {
         self.dataSource = dataSource
         self.coreDataStack = coreDataStack

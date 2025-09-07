@@ -14,9 +14,9 @@ protocol SearchCityDataSourceProtocol {
 
 final class SearchCityDataSource: SearchCityDataSourceProtocol {
     
-    private let coreDataStack: CoreDataStack
+    private let coreDataStack: CoreDataStackProtocol
     
-    init(coreDataStack: CoreDataStack) {
+    init(coreDataStack: CoreDataStackProtocol) {
         self.coreDataStack = coreDataStack
     }
     
