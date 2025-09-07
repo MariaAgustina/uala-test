@@ -30,8 +30,13 @@ final class DownloadCitiesRepository: DownloadCitiesRepositoryProtocol {
             let cities = try await self.dataSource.fetchCities()
             print("📱 Downloaded \(cities.count) cities from API")
             
-            await self.coreDataStack.saveCities(cities)
-            print("💾 Cities saved to CoreData successfully")
+            do {
+                try await self.coreDataStack.saveCities(cities)
+                print("💾 Cities saved to CoreData successfully")
+            } catch {
+                print("❌ Failed to save cities to CoreData: \(error)")
+                throw error
+            }
             
             return cities //TODO: not necessary return
         }.value

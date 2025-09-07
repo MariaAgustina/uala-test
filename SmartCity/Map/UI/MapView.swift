@@ -34,7 +34,7 @@ struct MapView: View {
             MapScaleView()
         }
         .sheet(isPresented: .constant(true)) {
-            SearchView(detent: $detent)
+            SearchView(detent: $detent, collapsedDetent: MapView.customShortDetent)
                 .presentationDetents([MapView.customShortDetent, .large], selection: $detent)
                 .presentationDragIndicator(.visible)
                 .interactiveDismissDisabled()

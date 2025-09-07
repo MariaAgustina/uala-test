@@ -8,39 +8,66 @@
 import Foundation
 import CoreData
 
+enum CoreDataError: Error {
+    case persistentStoreLoadingFailed(Error)
+    case saveFailed(Error)
+}
+
 final class CoreDataStack {
     
-    lazy var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "SmartCityData")
-        container.loadPersistentStores(completionHandler: { _, error in
-            if let error = error as NSError? {
-                //TODO: remove fatal
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            }
-        })
-        return container
-    }()
+    private var _persistentContainer: NSPersistentContainer?
+    private var loadError: Error?
     
-    var context: NSManagedObjectContext {
-        return persistentContainer.viewContext
+    var persistentContainer: NSPersistentContainer {
+        get throws {
+            if let error = loadError {
+                throw CoreDataError.persistentStoreLoadingFailed(error)
+            }
+            
+            if let container = _persistentContainer {
+                return container
+            }
+            
+            let container = NSPersistentContainer(name: "SmartCityData")
+            container.loadPersistentStores { _, error in
+                if let error = error {
+                    self.loadError = error
+                    print("❌ CoreData loading failed: \(error)")
+                } else {
+                    self._persistentContainer = container
+                    print("✅ CoreData loaded successfully")
+                }
+            }
+            
+            if let error = loadError {
+                throw CoreDataError.persistentStoreLoadingFailed(error)
+            }
+            
+            return container
+        }
     }
     
-    func saveContext() {
-        let context = persistentContainer.viewContext
+    var context: NSManagedObjectContext {
+        get throws {
+            return try persistentContainer.viewContext
+        }
+    }
+    
+    func saveContext() throws {
+        let context = try persistentContainer.viewContext
         
         if context.hasChanges {
             do {
                 try context.save()
             } catch {
-                let nsError = error as NSError
-                //TODO: remove fatal
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+                print("❌ Context save failed: \(error)")
+                throw CoreDataError.saveFailed(error)
             }
         }
     }
     
-    func saveCities(_ cities: CitiesResponse) async {
-        let backgroundContext = persistentContainer.newBackgroundContext()
+    func saveCities(_ cities: CitiesResponse) async throws {
+        let backgroundContext = try persistentContainer.newBackgroundContext()
         
         await backgroundContext.perform {
             print("💿 Processing \(cities.count) cities for CoreData...")

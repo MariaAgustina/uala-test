@@ -21,38 +21,43 @@ final class SearchCityDataSource: SearchCityDataSourceProtocol {
     }
     
     func searchCities(query: String) async throws -> [CityResponse] {
-        return await withCheckedContinuation { continuation in
-            let backgroundContext = coreDataStack.persistentContainer.newBackgroundContext()
-            
-            backgroundContext.perform {
-                let request: NSFetchRequest<City> = City.fetchRequest()
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                let backgroundContext = try coreDataStack.persistentContainer.newBackgroundContext()
                 
-                request.predicate = NSPredicate(format: "name BEGINSWITH[cd] %@", query)
-                request.sortDescriptors = [
-                    NSSortDescriptor(key: "name", ascending: true),
-                    NSSortDescriptor(key: "country", ascending: true)
-                ]
-                request.fetchLimit = 20
-                
-                do {
-                    let cities = try backgroundContext.fetch(request)
-                    print("🔍 CoreData query: '\(query)' -> \(cities.count) results")
+                backgroundContext.perform {
+                    let request: NSFetchRequest<City> = City.fetchRequest()
                     
-                    // Convertir a CityResponse aquí para ser thread-safe
-                    let cityResponses = cities.map { city in
-                        CityResponse(
-                            country: city.country ?? "",
-                            name: city.name ?? "",
-                            id: Int(city.id),
-                            coord: Coordinate(lon: city.longitude, lat: city.latitude)
-                        )
+                    request.predicate = NSPredicate(format: "name BEGINSWITH[cd] %@", query)
+                    request.sortDescriptors = [
+                        NSSortDescriptor(key: "name", ascending: true),
+                        NSSortDescriptor(key: "country", ascending: true)
+                    ]
+                    request.fetchLimit = 20
+                    
+                    do {
+                        let cities = try backgroundContext.fetch(request)
+                        print("🔍 CoreData query: '\(query)' -> \(cities.count) results")
+                        
+                        // Convertir a CityResponse aquí para ser thread-safe
+                        let cityResponses = cities.map { city in
+                            CityResponse(
+                                country: city.country ?? "",
+                                name: city.name ?? "",
+                                id: Int(city.id),
+                                coord: Coordinate(lon: city.longitude, lat: city.latitude)
+                            )
+                        }
+                        
+                        continuation.resume(returning: cityResponses)
+                    } catch {
+                        print("❌ Error searching cities: \(error)")
+                        continuation.resume(throwing: error)
                     }
-                    
-                    continuation.resume(returning: cityResponses)
-                } catch {
-                    print("❌ Error searching cities: \(error)")
-                    continuation.resume(returning: [])
                 }
+            } catch {
+                print("❌ Error creating CoreData context: \(error)")
+                continuation.resume(throwing: error)
             }
         }
     }

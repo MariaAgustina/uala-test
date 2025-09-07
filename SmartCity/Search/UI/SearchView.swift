@@ -15,6 +15,13 @@ struct SearchView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var detent: PresentationDetent
     
+    private let collapsedDetent: PresentationDetent
+    
+    init(detent: Binding<PresentationDetent>, collapsedDetent: PresentationDetent = .height(100)) {
+        self._detent = detent
+        self.collapsedDetent = collapsedDetent
+    }
+    
     var body: some View {
         VStack {
             HStack {
@@ -35,7 +42,7 @@ struct SearchView: View {
                             }
                         } else {
                             withAnimation {
-                                detent = MapView.customShortDetent
+                                detent = collapsedDetent
                                 searchText = ""
                             }
                         }
