@@ -34,7 +34,12 @@ struct MapView: View {
             MapScaleView()
         }
         .sheet(isPresented: .constant(true)) {
-            SearchView(detent: $detent, collapsedDetent: MapView.customShortDetent)
+            SearchView(
+                detent: $detent, 
+                collapsedDetent: MapView.customShortDetent
+            ) { selectedCity in
+                navigateToCity(selectedCity)
+            }
                 .presentationDetents([MapView.customShortDetent, .large], selection: $detent)
                 .presentationDragIndicator(.visible)
                 .interactiveDismissDisabled()
@@ -44,6 +49,20 @@ struct MapView: View {
             Task {
                 await viewModel.fetchDataIfNeeded()
             }
+        }
+    }
+    
+    private func navigateToCity(_ city: CityResponse) {
+        withAnimation(.easeInOut(duration: 1.0)) {
+            position = .region(
+                MKCoordinateRegion(
+                    center: CLLocationCoordinate2D(
+                        latitude: city.coord.lat, 
+                        longitude: city.coord.lon
+                    ),
+                    span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+                )
+            )
         }
     }
 }

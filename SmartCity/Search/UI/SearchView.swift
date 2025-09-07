@@ -14,13 +14,16 @@ struct SearchView: View {
     
     @Binding var detent: PresentationDetent
     private let collapsedDetent: PresentationDetent
+    let onCitySelected: (CityResponse) -> Void
     
     init(
         detent: Binding<PresentationDetent>,
-        collapsedDetent: PresentationDetent = .height(100)
+        collapsedDetent: PresentationDetent = .height(100),
+        onCitySelected: @escaping (CityResponse) -> Void
     ) {
         self._detent = detent
         self.collapsedDetent = collapsedDetent
+        self.onCitySelected = onCitySelected
     }
     
     var body: some View {
@@ -67,14 +70,26 @@ struct SearchView: View {
                 Spacer()
             } else if !viewModel.searchResults.isEmpty {
                 List(Array(viewModel.searchResults.enumerated()), id: \.offset) { index, city in
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(city.name)
-                            .font(.headline)
-                        Text(city.country)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                    Button(action: {
+                        onCitySelected(city)
+                        isSearchFocused = false
+                        withAnimation {
+                            detent = collapsedDetent
+                        }
+                    }) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(city.name)
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                            Text(city.country)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.vertical, 4)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
-                    .padding(.vertical, 4)
+                    .buttonStyle(PlainButtonStyle())
                 }
                 .listStyle(PlainListStyle())
             } else if !viewModel.searchQuery.isEmpty {
@@ -93,5 +108,7 @@ struct SearchView: View {
 }
 
 #Preview {
-    SearchView(detent: .constant(.height(200)))
+    SearchView(detent: .constant(.height(200))) { city in
+        print("Selected: \(city.name)")
+    }
 }
