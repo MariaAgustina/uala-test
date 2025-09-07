@@ -17,7 +17,7 @@ final class DownloadCitiesRepository: DownloadCitiesRepositoryProtocol {
     private let coreDataStack: CoreDataStackProtocol
     
     init(
-        dataSource: CitiesDataSourceProtocol = CitiesDataSource(),
+        dataSource: CitiesDataSourceProtocol,
         coreDataStack: CoreDataStackProtocol
     ) {
         self.dataSource = dataSource

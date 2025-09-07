@@ -15,6 +15,8 @@ struct MapView: View {
     @StateObject private var viewModel: MapViewModel
     @StateObject private var searchViewModel: SearchCityViewModel
     
+    private let coreDataStack: CoreDataStackProtocol
+    
     //TODO: hardcoded, this should be obteined from location services
     @State private var position: MapCameraPosition = .region(
         MKCoordinateRegion(
@@ -27,9 +29,10 @@ struct MapView: View {
     @State private var selectedCity: CityResponse?
     @State private var showingSearch = true
     
-    init(coreDataStack: CoreDataStackProtocol) {
+    init(coreDataStack: CoreDataStackProtocol = CoreDataStack()) {
+        self.coreDataStack = coreDataStack
         
-        let downloadRepo = DownloadCitiesRepository(coreDataStack: coreDataStack)
+        let downloadRepo = DownloadCitiesRepository(dataSource: CitiesDataSource(), coreDataStack: coreDataStack)
         let downloadUseCase = DownloadCitiesUseCase(repository: downloadRepo)
         self._viewModel = StateObject(wrappedValue: MapViewModel(downloadCitiesUseCase: downloadUseCase))
         
@@ -74,6 +77,7 @@ struct MapView: View {
         }
         .onAppear {
             Task {
+                do { try await coreDataStack.load() }
                 await viewModel.fetchDataIfNeeded()
             }
         }
