@@ -17,7 +17,7 @@ struct MapView: View {
     
     private let coreDataStack: CoreDataStackProtocol
     
-    //TODO: hardcoded, this should be obteined from location services
+    //TODO: hardcoded, this could be obteined from location services
     @State private var position: MapCameraPosition = .region(
         MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: -34.6037, longitude: -58.3816),

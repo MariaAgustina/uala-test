@@ -38,6 +38,7 @@ struct SearchView: View {
                 TextField("Buscar ciudad...", text: $viewModel.searchQuery)
                     .textFieldStyle(PlainTextFieldStyle())
                     .focused($isSearchFocused)
+                    .accessibilityIdentifier("search_text_field")
                     .onChange(of: isSearchFocused) { oldValue, newValue in
                         if newValue {
                             withAnimation {
@@ -94,6 +95,7 @@ struct SearchView: View {
                     .buttonStyle(PlainButtonStyle())
                 }
                 .listStyle(PlainListStyle())
+                .accessibilityIdentifier("search_results_list")
             } else if !viewModel.searchQuery.isEmpty {
                 //TODO: localization
                 Text("No se encontraron ciudades")

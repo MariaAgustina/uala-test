@@ -30,6 +30,7 @@ struct CityDetailView: View {
             }
         }
         .background(Color(.systemGroupedBackground))
+        .accessibilityIdentifier("city_detail_view")
     }
     
     private var header: some View {
