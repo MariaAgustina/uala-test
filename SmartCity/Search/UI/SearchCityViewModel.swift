@@ -58,15 +58,12 @@ final class SearchCityViewModel: ObservableObject {
                 loadingTask?.cancel()
                 searchResults = results
                 isSearching = false
-                print("🔍 Found \(results.count) cities for query: '\(query)'")
-                print("📝 City names: \(results.map { $0.name }.joined(separator: ", "))")
             } catch {
                 guard !Task.isCancelled else { return }
                 
                 loadingTask?.cancel()
                 searchResults = []
                 isSearching = false
-                print("❌ Error searching cities: \(error)")
             }
         }
     }

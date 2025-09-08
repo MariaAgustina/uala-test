@@ -52,7 +52,6 @@ final class SearchCityDataSource: SearchCityDataSourceProtocol {
             request.fetchLimit = 20
             
             let cities = try ctx.fetch(request)
-            print("🔍 CoreData query: '\(query)' -> \(cities.count) results")
             
             return cities.map { city in
                 CityResponse(

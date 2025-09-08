@@ -21,9 +21,8 @@ final class MapViewModel: ObservableObject {
     func fetchDataIfNeeded() async {
         do {
             try await downloadCitiesUseCase.executeIfNeeded()
-            print("🎉 Cities fetch completed successfully")
         } catch {
-            print("❌ Error fetching cities: \(error)")
+            //TODO: log error
         }
     }
     

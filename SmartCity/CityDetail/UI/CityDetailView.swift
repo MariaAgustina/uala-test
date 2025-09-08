@@ -144,6 +144,6 @@ struct CityDetailView: View {
             coord: Coordinate(lon: -58.3816, lat: -34.6037)
         )
     ) {
-        print("Close tapped")
+        //TODO: log close action if needed
     }
 }

@@ -122,6 +122,6 @@ struct SearchView: View {
         viewModel: searchViewModel,
         detent: .constant(.height(200))
     ) { city in
-        print("Selected: \(city.name)")
+        //TODO: log selected city if needed
     }
 }

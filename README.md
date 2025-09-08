@@ -43,3 +43,14 @@ Fast, offline-first city search and map browsing with favorites.
   - Improved dynamic UI adaptation for **landscape**.
   - Observability & automation: **Firebase Analytics**, **Crashlytics**, **GitHub Actions** for CI/CD, a structured logging utility, and a more robust networking module (e.g., adopting **Alamofire**).
 
+## Opportunities for improvement
+
+- **To paginate the cities API** to make the dataset scalable as it grows (server paging + client-side incremental loading).
+
+- **To request the user’s location** (When In Use) so the map can recenter on current position at app launch (graceful degradation if denied).
+
+- **To map country codes to human-readable names** (e.g., ISO 3166 → localized display names) so city rows show clear country labels.
+
+- **To improve the refresh mechanism** by moving from a client-side TTL to server-driven freshness via lightweight metadata
+
+- **To add user accounts** so favorites can be stored server-side and synced across devices (survive reinstall, consistent multi-device experience).
