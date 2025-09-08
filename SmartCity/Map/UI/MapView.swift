@@ -57,9 +57,12 @@ struct MapView: View {
                 detent: $detent, 
                 collapsedDetent: MapView.customShortDetent
             ) { city in
-                navigateToCity(city)
-                selectedCity = city
                 showingSearch = false
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { //ux purpose
+                    navigateToCity(city)
+                    selectedCity = city
+                }
             }
                 .presentationDetents([MapView.customShortDetent, .large], selection: $detent)
                 .presentationDragIndicator(.visible)

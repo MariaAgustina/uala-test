@@ -70,6 +70,7 @@ final class CoreDataStack: CoreDataStackProtocol {
                 row.setValue(c.country,    forKey: "country")
                 row.setValue(c.coord.lat,  forKey: "latitude")
                 row.setValue(c.coord.lon,  forKey: "longitude")
+                row.setValue(TextNormalizer.fold(c.name), forKey: "nameFolded")
                 return false
             }
             try ctx.execute(insert)

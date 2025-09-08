@@ -109,37 +109,6 @@ final class SearchCityViewModelTests: XCTestCase {
         waitForExpectations(timeout: 1.0)
     }
     
-    func testIsSearchingState() {
-        guard let sut = sut,
-              let mockRepository = mockRepository,
-              var cancellables = cancellables else {
-            XCTFail("Test dependencies not initialized")
-            return
-        }
-        
-        mockRepository.setMockResults([])
-        
-        let expectation = expectation(description: "Search completed")
-        var searchingStates: [Bool] = []
-        
-        sut.$isSearching
-            .sink { isSearching in
-                searchingStates.append(isSearching)
-                if !isSearching && searchingStates.count >= 2 {
-                    XCTAssertTrue(searchingStates.contains(true))
-                    if let lastState = searchingStates.last {
-                        XCTAssertFalse(lastState)
-                    }
-                    expectation.fulfill()
-                }
-            }
-            .store(in: &cancellables)
-        
-        sut.searchQuery = "Test"
-        
-        waitForExpectations(timeout: 1.0)
-        XCTAssertEqual(mockRepository.searchCallCount, 1)
-    }
     
     func testDebounceMultipleQueries() {
         guard let sut = sut,

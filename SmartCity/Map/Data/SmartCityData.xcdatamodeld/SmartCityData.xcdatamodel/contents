@@ -6,5 +6,10 @@
         <attribute name="latitude" optional="NO" attributeType="Double" defaultValue="0.0" usesScalarValueType="YES"/>
         <attribute name="longitude" optional="NO" attributeType="Double" defaultValue="0.0" usesScalarValueType="YES"/>
         <attribute name="name" optional="NO" attributeType="String"/>
+        <attribute name="nameFolded" optional="NO" attributeType="String"/>
+        <fetchIndex name="searchIndex">
+            <fetchIndexElement property="nameFolded" type="Binary" order="ascending"/>
+            <fetchIndexElement property="country" type="Binary" order="ascending"/>
+        </fetchIndex>
     </entity>
 </model>
